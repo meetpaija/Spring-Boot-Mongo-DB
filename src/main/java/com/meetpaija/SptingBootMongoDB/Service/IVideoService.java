@@ -1,6 +1,7 @@
 package com.meetpaija.SptingBootMongoDB.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,5 +14,7 @@ public interface IVideoService {
 	VideoModel getVideo(String id) throws IllegalStateException, IOException;
 
 	void deleteVideo(String id);
+
+	String addBinaryData(String objectId, InputStream stream);
 
 }

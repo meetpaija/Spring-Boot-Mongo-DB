@@ -1,6 +1,7 @@
 package com.meetpaija.SptingBootMongoDB.Controller;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,15 +31,29 @@ public class VideoController {
 	@Autowired
 	IVideoService videoService;
 	
-	@PostMapping("/videos/add")
-	public ResponseEntity<Object> addVideo(@RequestParam("title") String title, 
+	@PostMapping("/files/upload/{objectId}")
+	public ResponseEntity<Object> addVideo1(@PathVariable(value="objectId", required=true) String objectId, 
 	  @RequestParam("file") MultipartFile file) throws IOException {
-	    String id = videoService.addVideo(title, file);
+	    String id = videoService.addVideo(objectId, file);
 	    return new ResponseEntity<Object>(id,HttpStatus.OK);
 	}
 	
+	@PostMapping("/videos/add1")
+	public ResponseEntity<Object> addVideo(@RequestParam(value="objectId", required=true) String objectId, 
+			@RequestBody VideoStreamModel stream) throws IOException {
+		String id = videoService.addBinaryData(objectId, stream.getInputStream());
+		return new ResponseEntity<Object>(id,HttpStatus.OK);
+	}
+	
+	@PostMapping("/binaryData/add")
+	public ResponseEntity<Object> addBinaryData(@RequestParam(value="objectId", required=true) String objectId, 
+			@RequestBody InputStream stream) throws IOException {
+		String id = videoService.addBinaryData(objectId, stream);
+		return new ResponseEntity<Object>(id,HttpStatus.OK);
+	}
+	
 	@GetMapping("/videos/{id}")
-	public ResponseEntity<Object> getVideo(@PathVariable String id) throws Exception {
+	public ResponseEntity<Object> getVideo(@PathVariable(required=true, value="id") String id) throws Exception {
 	    VideoModel video = videoService.getVideo(id);
 	    return ResponseEntity.ok()
         .contentLength(video.getLength())

@@ -17,8 +17,8 @@ public class VideoModel implements Serializable{
 	
 	@Id
 	private String videoId;
-	@Field("title")
-	private String title;
+	@Field("objectId")
+	private String objectId;
 	@Field("stream")
     private InputStream stream;
 	private long length;
@@ -36,11 +36,11 @@ public class VideoModel implements Serializable{
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
-	public String getTitle() {
-		return title;
+	public String getObjectId() {
+		return objectId;
 	}
-	public void setTitle(String title) {
-		this.title = title;
+	public void setObjectId(String objectId) {
+		this.objectId = objectId;
 	}
 	public InputStream getStream() {
 		return stream;

@@ -1,6 +1,7 @@
 package com.meetpaija.SptingBootMongoDB.ServiceImpl;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +27,23 @@ public class VideoServiceImpl implements IVideoService{
     @Autowired
     private GridFsOperations operations;
  
-    public String addVideo(String title, MultipartFile file) throws IOException { 
+    public String addVideo(String objectId, MultipartFile file) throws IOException { 
+    	GridFSFile existingFile = gridFsTemplate.findOne(new Query(Criteria.where("metadata.objectId").is(objectId)));
+    	if(existingFile!=null){
+    		return existingFile.getMetadata().get("objectId").toString();
+    	}
         DBObject metaData = new BasicDBObject(); 
         metaData.put("type", "video"); 
-        metaData.put("title", title); 
+        metaData.put("objectId", objectId); 
         ObjectId id = gridFsTemplate.store(
-          file.getInputStream(), file.getName(), file.getContentType(), metaData); 
+          file.getInputStream(), file.getOriginalFilename(), file.getContentType(), metaData); 
         return id.toString(); 
     }
  
     public VideoModel getVideo(String id) throws IllegalStateException, IOException { 
-        GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id))); 
+        GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("metadata.objectId").is(id))); 
         VideoModel video = new VideoModel();
-        video.setVideoId(id);
-        video.setTitle(file.getMetadata().get("title").toString()); 
+        video.setObjectId(file.getMetadata().get("objectId").toString()); 
         video.setStream(operations.getResource(file.getFilename()).getInputStream());
         video.setLength(file.getLength());
         video.setContentType(file.getMetadata().get("_contentType").toString());
@@ -49,6 +53,20 @@ public class VideoServiceImpl implements IVideoService{
 	@Override
 	public void deleteVideo(String id) {
 		gridFsTemplate.delete(new Query(Criteria.where("_id").is(id)));
+	}
+
+	@Override
+	public String addBinaryData(String objectId, InputStream stream) {
+		GridFSFile existingFile = gridFsTemplate.findOne(new Query(Criteria.where("metadata.objectId").is(objectId)));
+    	if(existingFile!=null){
+    		return existingFile.getMetadata().get("objectId").toString();
+    	}
+        DBObject metaData = new BasicDBObject(); 
+        metaData.put("type", "video"); 
+        metaData.put("objectId", objectId); 
+        ObjectId id = gridFsTemplate.store(
+        		stream, metaData); 
+        return objectId.toString(); 
 	}
 
 }
